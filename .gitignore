@@ -37,3 +37,9 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# Mac stuff
+.DS_Store
+
+# Project specific
+uploads/*
