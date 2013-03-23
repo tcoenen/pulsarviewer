@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}Folded candidate{% endblock %}
+
+{% block breadcrumbs %}<a href="{% url 'bestprof_list' %}{% if selection %}?{{selection}}{% endif %}">Candidate list</a> &gt; Folded candidate{% endblock %}
+
+{% block content %}
+<h1>P0 = {{p0}} ms, DM = {{dm}}, Reduced chi square = {{redchisq}}</h1>
+<div style="background-color:white" ><img src="{{img.file.url}}" />
+{% endblock %}

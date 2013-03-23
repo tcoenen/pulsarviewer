@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block breadcrumbs %}Candidates list
+{% if is_paginated %} : Page {{page_obj.number}} of {{paginator.num_pages}}
+({% if page_obj.has_previous %}<a href="{% if selection %}?{{selection}}&{% else %}?{% endif %}page={{page_obj.previous_page_number}}">previous</a>
+{% else %}previous{% endif %},
+{% if page_obj.has_next %}<a href="{% if selection %}?{{selection}}&{% else %}?{% endif %}page={{page_obj.next_page_number}}">next</a>{% else %}next{% endif %})
+{% endif %}
+
+{% endblock %}
+
+{% block content %}
+<ul>
+{% for fold in object_list %}
+<li><a href="{% url 'bestprof_detail' fold.pk %}{% if selection %}?{{selection}}{% endif %}">P0 = {{fold.p_bary}}, DM {{fold.best_dm}}</a></li>
+{% endfor %}
+</ul>
+{% endblock content %}

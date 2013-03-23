@@ -43,3 +43,5 @@ nosetests.xml
 
 # Project specific
 uploads/*
+db/*
+todo.txt

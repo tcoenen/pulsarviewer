@@ -1,0 +1,55 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>{% block title %}Pulsar viewer{% endblock %}</title>
+<style>
+/*<![CDATA[*/
+body {
+    font-family: sans-serif;
+    background-color: black;
+    color: white;
+    margin: 0em;
+    padding: 0em;
+}
+#breadcrumbs {
+    background-color: #333333;
+    color: #cccccc;
+    padding: 0em 1em 0em 1em;
+}
+#breadcrumbs > a {
+    color: #cccccc;
+}
+#content {
+    padding: 0em 1em 0em 1em;
+    color:white;
+}
+#content > a{
+    color : white;
+}
+
+#header {
+    padding: 0em 1em 0em 1em;
+    color: gray;
+    background-color: black;
+}
+#header > a {
+    color: gray;
+}
+#pagetitle {
+    color: #336699;
+    font-size: 200%;
+}
+#pagetitle > a {
+    color: #336699;
+    text-decoration: none;
+}
+
+/*]]>*/
+</style>
+</head>
+<body>
+<div id="header"><span id="pagetitle">{% block pagetitle %}Pulsar Viewer{% endblock %} </span> 
+{% if user.is_authenticated %}Logged in as {{user}} (<a href="{% url logout %}">log out</a>).{% endif %}</div>
+<div id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</div>
+<div id="content">{% block content %}{% endblock %}</div>
+<div id="footer"></div>
+</body>
+</html>
