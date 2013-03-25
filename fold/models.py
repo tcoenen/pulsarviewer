@@ -71,7 +71,7 @@ class BestprofManager(models.Manager):
             except ValueError:
                 pass
             else:
-                qs = qs.filter(p_bary__gte=hi_p)
+                qs = qs.filter(p_bary__lte=hi_p)
 
         if 'lo_redchisq' in get_pars:
             try:
