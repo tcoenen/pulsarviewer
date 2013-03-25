@@ -26,13 +26,13 @@ class CandidateGraphNode(template.Node):
         P = [c.p_bary for c in qs.all() if c.best_dm > 0]
         DM = [c.best_dm for c in qs.all() if c.best_dm > 0]
         REDCHISQ = [c.reduced_chi_sq for c in qs.all() if c.best_dm > 0]
-        max_redchisq = max(REDCHISQ)
-        min_redchisq = min(REDCHISQ)
         LINKS = [reverse('bestprof_detail', args=[c.pk])
                  for c in qs.all() if c.best_dm > 0]
         # TODO: add RA and DEC
 
         if P:
+            max_redchisq = max(REDCHISQ)
+            min_redchisq = min(REDCHISQ)
             # Main panel showing candidate period-DM scatter plot:
             pc = PlotContainer(0, 0, 910, 600, color='white', x_log=True,
                                y_log=True)
@@ -96,11 +96,11 @@ class ChiSquareCandidateGraphNode(template.Node):
         LINKS = [reverse('bestprof_detail', args=[c.pk])
                  for c in qs.all() if c.best_dm > 0]
         # TODO: add RA and DEC
-        lo_dm = min(DM)
-        max_dm = max(DM)
 
         cv = SVGCanvas(1000, 600, background_color='black')
         if P:
+            lo_dm = min(DM)
+            max_dm = max(DM)
             pc = PlotContainer(0, 0, 910, 600, color='white',
                                background_color='black', x_log=True,
                                y_log=True)
@@ -162,10 +162,10 @@ class CandidatePHistogramNode(template.Node):
         tmp = StringIO.StringIO()
 
         P = [c.p_bary for c in qs.all() if c.p_bary > 0]
-        binned = bin_data_log(P, 200)
 
         cv = SVGCanvas(1000, 600, background_color='black')
         if P:
+            binned = bin_data_log(P, 200)
             pc = PlotContainer(0, 0, 910, 600, color='white', x_log=True)
             pc.bottom.set_label('Period (ms)')
             pc.top.hide_label()
