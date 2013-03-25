@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<h1>Constraints</h1>
+<form method="POST" action=".">
+{% csrf_token %}
+<table>
+{{form.as_table}}
+</table>
+<input type="submit" value="Change constraints !" />
+</form>
+<br />
+<ul>
+	<li><a href="{% url 'bestprof_list' %}{{selection}}">Candidate listing</a></li>
+	<li><a href="{% url 'candidate_pdm_graph' %}{{selection}}">Period versus Dispersion Measure</a></li>
+	<li><a href="{% url 'candidate_pchi_graph' %}{{selection}}">Period versus reduced chi-squared</a></li>
+	<li><a href="{% url 'candidate_p_histogram' %}{{selection}}">Period histogram</a></li>
+</ul>
+{% endblock %}

@@ -1,8 +1,11 @@
-from django.views.generic import ListView, DetailView
-from django.http import Http404, QueryDict
+from django.views.generic import ListView, DetailView, View
+from django.views.generic.edit import FormView
+from django.core.urlresolvers import reverse
 
+from django.http import HttpResponseRedirect, QueryDict
 
 from models import Bestprof, FoldedImage
+from forms import ConstraintsForm
 
 OK_GET_PARAMETERS = set([
     'lo_dm',
@@ -14,6 +17,8 @@ OK_GET_PARAMETERS = set([
     'beam',
     'order',
 ])
+
+#ARGH = reverse('candidate_constraints')
 
 
 def check_parameters(get_pars):
@@ -54,24 +59,48 @@ class BestprofDetailView(DetailView):
 
 
 class CandidatePDMView(BestprofListView):
+    template_name = 'fold/pdm_graph.html'
     paginate_by = 2000
-
-    def get_template_names(self):
-        # TODO: see whether this can be done less hacky
-        return ['fold/pdm_graph.html']
 
 
 class CandidatePChiView(BestprofListView):
+    template_name = 'fold/pchi_graph.html'
     paginate_by = 2000
-
-    def get_template_names(self):
-        # TODO: see whether this can be done less hacky
-        return ['fold/pchi_graph.html']
 
 
 class CandidatePHistogramView(BestprofListView):
+    template_name = 'fold/p_hist.html'
     paginate_by = None
 
-    def get_template_names(self):
-        # TODO: see whether this can be done less hacky
-        return ['fold/p_hist.html']
+
+class ConstraintsView(FormView):
+    template_name = 'fold/constraints.html'
+    form_class = ConstraintsForm
+    CONSTRAINTS_KEYS = ['lo_p', 'hi_p', 'lo_redchisq', 'hi_redchisq']
+
+    def get_context_data(self, **kwargs):
+        context = super(ConstraintsView, self).get_context_data(**kwargs)
+        selection = check_parameters(self.request.GET).urlencode()
+        if selection:
+            selection = '?' + selection
+        context['selection'] = selection
+        return context
+
+    def get_initial(self):
+        tmp = {}
+        for k, v in self.request.GET.iteritems():
+            if k in self.CONSTRAINTS_KEYS:
+                tmp[k] = v
+        return tmp
+
+    def form_valid(self, form):
+        qd = QueryDict('').copy()
+        # TODO : consider filtering this to a subset of the forms' values if
+        # needed.
+        tmp = {}
+        for k, v in form.cleaned_data.iteritems():
+            if k in self.CONSTRAINTS_KEYS and v is not None:
+                tmp[k] = v
+        qd.update(tmp)
+        path = reverse('candidate_constraints') + '?' + qd.urlencode()
+        return HttpResponseRedirect(path)
