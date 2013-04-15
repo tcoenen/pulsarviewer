@@ -6,7 +6,7 @@ import copy
 from brp.svg.base import SVGCanvas, PlotContainer, TextFragment
 from brp.svg.plotters.scatter import ScatterPlotter
 from brp.svg.plotters.gradient import GradientPlotter, RGBGradient
-#from brp.svg.plotters.symbol import RADECSymbol
+from brp.svg.plotters.symbol import RADECSymbol
 from brp.svg.plotters.histogram import HistogramPlotter, bin_data_log
 
 register = template.Library()
@@ -28,7 +28,8 @@ class CandidateGraphNode(template.Node):
         REDCHISQ = [c.reduced_chi_sq for c in qs.all() if c.best_dm > 0]
         LINKS = [reverse('bestprof_detail', args=[c.pk])
                  for c in qs.all() if c.best_dm > 0]
-        # TODO: add RA and DEC
+        RA = [c.ra_deg for c in qs.all() if c.best_dm > 0]
+        DEC = [c.dec_deg for c in qs.all() if c.best_dm > 0]
 
         if P:
             max_redchisq = max(REDCHISQ)
@@ -42,8 +43,8 @@ class CandidateGraphNode(template.Node):
             pc.right.hide_label()
             gr = RGBGradient((min_redchisq, max_redchisq), (0, 0, 1),
                              (1, 0, 0))
-            scp = ScatterPlotter(P, DM, REDCHISQ, gradient=gr, gradient_i=2,
-                                 links=LINKS)
+            scp = ScatterPlotter(P, DM, RA, DEC, REDCHISQ, gradient=gr, gradient_i=4,
+                                 links=LINKS, symbol=RADECSymbol)
             pc.add_plotter(scp)
             cv.add_plot_container(pc)
             # Gradient:
@@ -95,7 +96,8 @@ class ChiSquareCandidateGraphNode(template.Node):
         REDCHISQ = [c.reduced_chi_sq for c in qs.all() if c.best_dm > 0]
         LINKS = [reverse('bestprof_detail', args=[c.pk])
                  for c in qs.all() if c.best_dm > 0]
-        # TODO: add RA and DEC
+        RA = [c.ra_deg for c in qs.all() if c.best_dm > 0]
+        DEC = [c.dec_deg for c in qs.all() if c.best_dm > 0]
 
         cv = SVGCanvas(1000, 600, background_color='black')
         if P:
@@ -105,8 +107,9 @@ class ChiSquareCandidateGraphNode(template.Node):
                                background_color='black', x_log=True,
                                y_log=True)
             gr = RGBGradient((lo_dm, max_dm), (0, 0, 1), (1, 0, 0))
-            pc.add_plotter(ScatterPlotter(P, REDCHISQ, DM, gradient=gr,
-                           gradient_i=2, links=LINKS))
+            scp = ScatterPlotter(P, REDCHISQ, RA, DEC, DM, gradient=gr, gradient_i=4,
+                                 links=LINKS, symbol=RADECSymbol)
+            pc.add_plotter(scp)
             pc.top.hide_tickmarklabels()
             pc.top.hide_label()
             pc.right.hide_tickmarklabels()

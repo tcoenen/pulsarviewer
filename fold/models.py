@@ -2,11 +2,13 @@ import os
 
 from django.db import models
 from django.core.files import File
+from django.contrib.auth.models import User
+
 import bestprof
 
 
 class BestprofManager(models.Manager):
-    def create_bestprof(self, filename, beamname):
+    def create_bestprof(self, filename, beamname, ra_deg, dec_deg):
         bpf = bestprof.BestprofFile(filename)
         with open(filename) as f:
             file_hash = hash(f.read())
@@ -15,6 +17,8 @@ class BestprofManager(models.Manager):
             file_hash=file_hash,
             beam=beamname,
             file=File(open(filename)),
+            ra_deg=ra_deg,
+            dec_deg=dec_deg,
             input_file=bpf.header.input_file,
             candidate=bpf.header.candidate,
             telescope=bpf.header.telescope,
@@ -118,6 +122,8 @@ class Bestprof(models.Model):
     beam = models.CharField(max_length=255)
     file = models.FileField(upload_to=generate_bestprof_filename,
                             editable=False)
+    ra_deg = models.FloatField()
+    dec_deg = models.FloatField()
 
     input_file = models.CharField(max_length=255)
     candidate = models.CharField(max_length=255)
@@ -167,3 +173,9 @@ class FoldedImage(models.Model):
     bestprof = models.ForeignKey(Bestprof)
 
     objects = FoldedImageManager()
+
+
+class Vote(models.Model):
+    who = models.ForeignKey(User)
+    which = models.ForeignKey(Bestprof)
+    tag = models.CharField(max_length=255)

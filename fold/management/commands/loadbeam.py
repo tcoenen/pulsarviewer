@@ -1,9 +1,12 @@
 import errno
 import os
+import math
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db.utils import IntegrityError
 from fold.models import Bestprof, FoldedImage
+
+from fold import coords
 
 
 def match_files(png_files, bestprof_files):
@@ -35,10 +38,19 @@ class Command(BaseCommand):
     help = 'Load all pulsar folds from search'
 
     def handle(self, *args, **kwargs):
-        if not args or len(args) != 2:
-            msg = 'Specify 1 search output dir and 1 beam name (no spaces).'
+        if not args or len(args) != 4:
+            print len(args)
+            msg = 'Specify search output dir, beam (no spaces), RA and DEC.'
             raise CommandError(msg)
 
+        ra = coords.RightAscension.from_sexagesimal(args[2])
+        dec = coords.Declination.from_sexagesimal(args[3])
+        ra_deg = 180 * ra.to_radians() / math.pi
+        dec_deg = 180 * dec.to_radians() / math.pi
+
+        print '(RA, DEC) = (%.2f, %.2f)' % (ra_deg, dec_deg)
+
+        # find relevant files
         folds_root = os.path.join(args[0], 'QUICKLOOK')
         bestprof_files = []
         png_files = []
@@ -63,7 +75,7 @@ class Command(BaseCommand):
         failures = []
         for f1, f2 in matched_files:
             try:
-                new = Bestprof.objects.create_bestprof(f2, args[1])
+                new = Bestprof.objects.create_bestprof(f2, args[1], ra_deg, dec_deg)
             except IOError, e:
                 if e.errno == errno.ENOENT:
                     msg = 'File does not exist: %s' % f
