@@ -21,7 +21,7 @@ class CandidateGraphNode(template.Node):
         qs = context[self.var_name]
         tmp = StringIO.StringIO()
 
-        cv = SVGCanvas(1000, 600, background_color='black')
+        cv = SVGCanvas(1000, 600, background_color='white')
 
         P = [c.p_bary for c in qs.all() if c.best_dm > 0]
         DM = [c.best_dm for c in qs.all() if c.best_dm > 0]
@@ -35,7 +35,7 @@ class CandidateGraphNode(template.Node):
             max_redchisq = max(REDCHISQ)
             min_redchisq = min(REDCHISQ)
             # Main panel showing candidate period-DM scatter plot:
-            pc = PlotContainer(0, 0, 910, 600, color='white', x_log=True,
+            pc = PlotContainer(0, 0, 910, 600, color='black', x_log=True,
                                y_log=True)
             pc.bottom.set_label('Period (ms)')
             pc.top.hide_label()
@@ -48,7 +48,7 @@ class CandidateGraphNode(template.Node):
             pc.add_plotter(scp)
             cv.add_plot_container(pc)
             # Gradient:
-            pc = PlotContainer(870, 0, 120, 600, color='white', data_padding=0)
+            pc = PlotContainer(870, 0, 120, 600, color='black', data_padding=0)
             pc.top.hide_label()
             pc.top.hide_tickmarks()
             pc.left.hide_tickmarks()
@@ -99,16 +99,16 @@ class ChiSquareCandidateGraphNode(template.Node):
         RA = [c.ra_deg for c in qs.all() if c.best_dm > 0]
         DEC = [c.dec_deg for c in qs.all() if c.best_dm > 0]
 
-        cv = SVGCanvas(1000, 600, background_color='black')
+        cv = SVGCanvas(1000, 600, background_color='white')
         if P:
             lo_dm = min(DM)
             max_dm = max(DM)
-            pc = PlotContainer(0, 0, 910, 600, color='white',
-                               background_color='black', x_log=True,
+            pc = PlotContainer(0, 0, 910, 600, color='black', x_log=True,
                                y_log=True)
             gr = RGBGradient((lo_dm, max_dm), (0, 0, 1), (1, 0, 0))
-            scp = ScatterPlotter(P, REDCHISQ, RA, DEC, DM, gradient=gr, gradient_i=4,
-                                 links=LINKS, symbol=RADECSymbol)
+            scp = ScatterPlotter(P, REDCHISQ, RA, DEC, DM, gradient=gr,
+                                 gradient_i=4, links=LINKS,
+                                 symbol=RADECSymbol)
             pc.add_plotter(scp)
             pc.top.hide_tickmarklabels()
             pc.top.hide_label()
@@ -118,7 +118,7 @@ class ChiSquareCandidateGraphNode(template.Node):
             pc.bottom.set_label('Period (ms)')
             cv.add_plot_container(pc)
             # Gradient:
-            pc = PlotContainer(870, 0, 120, 600, color='white', data_padding=0)
+            pc = PlotContainer(870, 0, 120, 600, color='black', data_padding=0)
             pc.top.hide_label()
             pc.top.hide_tickmarks()
             pc.left.hide_tickmarks()
@@ -131,7 +131,7 @@ class ChiSquareCandidateGraphNode(template.Node):
             # write number of candidates shown:
             tf = TextFragment(50, 590,
                               '(Showing %d candidates.)' % len(P),
-                              color='white', font_size=15)
+                              color='black', font_size=15)
             cv.add_plot_container(tf)
         else:
             tf = TextFragment(200, 200, 'No Candidates found.', color='red',
@@ -166,20 +166,20 @@ class CandidatePHistogramNode(template.Node):
 
         P = [c.p_bary for c in qs.all() if c.p_bary > 0]
 
-        cv = SVGCanvas(1000, 600, background_color='black')
+        cv = SVGCanvas(1000, 600, background_color='white')
         if P:
             binned = bin_data_log(P, 200)
-            pc = PlotContainer(0, 0, 910, 600, color='white', x_log=True)
+            pc = PlotContainer(0, 0, 910, 600, color='black', x_log=True)
             pc.bottom.set_label('Period (ms)')
             pc.top.hide_label()
             pc.left.set_label('Count')
             pc.right.hide_label()
-            hp = HistogramPlotter(binned, color='white')
+            hp = HistogramPlotter(binned, color='black')
             pc.add_plotter(hp)
             cv.add_plot_container(pc)
             # write number of candidates shown:
             tf = TextFragment(50, 590, '(Showing %d candidates.)' %
-                              len(P), color='white', font_size=15)
+                              len(P), color='black', font_size=15)
             cv.add_plot_container(tf)
         else:
             tf = TextFragment(200, 200, 'No Candidates found.', color='red',
