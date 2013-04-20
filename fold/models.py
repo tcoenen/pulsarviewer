@@ -156,7 +156,7 @@ class Bestprof(models.Model):
         return 'DM = %.3f P = %.4f (ms)' % (self.best_dm, self.p_bary)
 
     def get_absolute_url(self):
-        return reverse('bestprof_tag', args=(self.pk,))
+        return reverse('bestprof_detail', args=(self.pk,))
 
 
 def generate_png_filename(instance, filename):

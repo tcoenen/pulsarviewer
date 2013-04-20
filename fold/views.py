@@ -19,6 +19,9 @@ OK_GET_PARAMETERS = set([
     'order',
 ])
 
+CONSTRAINTS_KEYS = [
+    'lo_p', 'hi_p', 'lo_redchisq', 'hi_redchisq', 'lo_dm', 'hi_dm']
+
 
 def prepend_questionmark(s):
     if s:
@@ -45,23 +48,6 @@ class BestprofListView(ListView):
         context = super(BestprofListView, self).get_context_data(**kwargs)
         context['selection'] = prepend_questionmark(
             check_parameters(self.request.GET).urlencode())
-        return context
-
-
-class BestprofDetailView(DetailView):
-    model = Bestprof
-
-    def get_context_data(self, **kwargs):
-        context = super(BestprofDetailView, self).get_context_data(**kwargs)
-
-        img = FoldedImage.objects.get(bestprof=context['object'].pk)
-
-        context['selection'] = prepend_questionmark(
-            check_parameters(self.request.GET).urlencode())
-        context['img'] = img
-        context['dm'] = '%.2f' % context['object'].best_dm
-        context['p0'] = '%.2f' % context['object'].p_bary
-        context['redchisq'] = '%.3f' % context['object'].reduced_chi_sq
         return context
 
 
@@ -95,7 +81,7 @@ class ConstraintsView(FormView):
     def get_initial(self):
         tmp = {}
         for k, v in self.request.GET.iteritems():
-            if k in self.CONSTRAINTS_KEYS:
+            if k in CONSTRAINTS_KEYS:
                 tmp[k] = v
         return tmp
 
@@ -105,21 +91,27 @@ class ConstraintsView(FormView):
         # needed.
         tmp = {}
         for k, v in form.cleaned_data.iteritems():
-            if k in self.CONSTRAINTS_KEYS and v is not None:
+            if k in CONSTRAINTS_KEYS and v is not None:
                 tmp[k] = v
         qd.update(tmp)
         path = reverse('candidate_constraints') + '?' + qd.urlencode()
         return HttpResponseRedirect(path)
 
 
-class TempView(UpdateView):
+class BestprofDetailView(UpdateView):
     template_name = 'fold/tag.html'
     form_class = CandidateTagForm
     model = Bestprof
 
     def get_context_data(self, **kwargs):
-        context = super(TempView, self).get_context_data(**kwargs)
-
+        context = super(BestprofDetailView, self).get_context_data(**kwargs)
+        context['selection'] = prepend_questionmark(
+            check_parameters(self.request.GET).urlencode())
         img = FoldedImage.objects.get(bestprof=context['object'].pk)
         context['img'] = img
+        print context
         return context
+
+    def get_success_url(self):
+        return reverse('bestprof_detail', args=(self.object.pk,)) + '?' + \
+            self.request.GET.urlencode()

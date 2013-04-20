@@ -12,7 +12,7 @@ body {margin-top: 50px}
 <body>
 <div class="navbar navbar-fixed-top navbar-inverse">
 <div class="navbar-inner">
-	<a class="brand" href="/folds/">Pulsar Viewer</a>
+    <a class="brand" href="{% url 'home' %}">Pulsar Viewer</a>
 	<ul class="nav">
 		<li><a href="{% url 'candidate_constraints' %}{{selection}}">Select</a></li>
 		<li><a href="{% url 'bestprof_list' %}{{selection}}">Classify</a></li>

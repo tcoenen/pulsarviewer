@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<form method="POST" action="." class="form-inline">
+<form method="POST" action="{% url 'bestprof_detail' object.pk %}{{selection}}" class="form-inline">
 	{% csrf_token %}
 	{{form.tags}}
 	<button type="submit" class="btn btn-primary"/>Change tags</button>
