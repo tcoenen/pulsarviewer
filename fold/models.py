@@ -3,6 +3,7 @@ import os
 from django.db import models
 from django.core.files import File
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from taggit.managers import TaggableManager
 
@@ -153,6 +154,9 @@ class Bestprof(models.Model):
 
     def __unicode__(self):
         return 'DM = %.3f P = %.4f (ms)' % (self.best_dm, self.p_bary)
+
+    def get_absolute_url(self):
+        return reverse('bestprof_tag', args=(self.pk,))
 
 
 def generate_png_filename(instance, filename):

@@ -1,11 +1,12 @@
-from django.views.generic import ListView, DetailView, View
+from django.views.generic import ListView, DetailView
+from django.views.generic.edit import UpdateView
 from django.views.generic.edit import FormView
 from django.core.urlresolvers import reverse
 
-from django.http import HttpResponseRedirect, QueryDict
+from django.http import HttpResponseRedirect, QueryDict, Http404
 
 from models import Bestprof, FoldedImage
-from forms import ConstraintsForm
+from forms import ConstraintsForm, CandidateTagForm
 
 OK_GET_PARAMETERS = set([
     'lo_dm',
@@ -82,7 +83,8 @@ class CandidatePHistogramView(BestprofListView):
 class ConstraintsView(FormView):
     template_name = 'fold/constraints.html'
     form_class = ConstraintsForm
-    CONSTRAINTS_KEYS = ['lo_p', 'hi_p', 'lo_redchisq', 'hi_redchisq']
+    CONSTRAINTS_KEYS = ['lo_p', 'hi_p', 'lo_redchisq', 'hi_redchisq', 'lo_dm',
+                        'hi_dm']
 
     def get_context_data(self, **kwargs):
         context = super(ConstraintsView, self).get_context_data(**kwargs)
@@ -108,3 +110,16 @@ class ConstraintsView(FormView):
         qd.update(tmp)
         path = reverse('candidate_constraints') + '?' + qd.urlencode()
         return HttpResponseRedirect(path)
+
+
+class TempView(UpdateView):
+    template_name = 'fold/tag.html'
+    form_class = CandidateTagForm
+    model = Bestprof
+
+    def get_context_data(self, **kwargs):
+        context = super(TempView, self).get_context_data(**kwargs)
+
+        img = FoldedImage.objects.get(bestprof=context['object'].pk)
+        context['img'] = img
+        return context

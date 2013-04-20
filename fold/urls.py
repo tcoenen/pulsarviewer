@@ -3,9 +3,11 @@ from django.views.generic import TemplateView
 
 from views import BestprofListView, CandidatePHistogramView, ConstraintsView
 from views import BestprofDetailView, CandidatePDMView, CandidatePChiView
+from views import TempView
 
 urlpatterns = patterns('',
-    url(r'(?P<pk>\d+)/', BestprofDetailView.as_view(), name='bestprof_detail'),
+    url(r'(?P<pk>\d+)/$', BestprofDetailView.as_view(), name='bestprof_detail'),
+    url(r'(?P<pk>\d+)/tag/', TempView.as_view(), name='bestprof_tag'),
     url(r'pdm/', CandidatePDMView.as_view(), name='candidate_pdm_graph'),
     url(r'pchi/', CandidatePChiView.as_view(), name='candidate_pchi_graph'),
     url(r'phist/', CandidatePHistogramView.as_view(),

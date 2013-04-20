@@ -1,5 +1,9 @@
 from django import forms
 
+from taggit.forms import TagField
+
+from models import Bestprof
+
 
 def check_period(period):
     if period is not None and period <= 0:
@@ -8,7 +12,7 @@ def check_period(period):
 
 
 def check_largerthanzero(value, quantity):
-    if value is not None and value <= 0:
+    if value is not None and value < 0:
         raise forms.ValidationError('%s must be larger than zero.' % quantity)
     return value
 
@@ -40,21 +44,8 @@ class ConstraintsForm(forms.Form):
     def clean_hi_dm(self):
         return check_largerthanzero(self.cleaned_data['hi_dm'], 'DM')
 
-# TODO : figure out what is wrong when posting the form (if I put a 0
-# in lo_redchisq field it does not show up in output).
-#    def clean(self):
-#        cleaned_data = super(ConstraintsForm, self).clean()
-#
-#        if cleaned_data['hi_p'] is not None and cleaned_data['lo_p'] is not None:
-#            if cleaned_data['hi_p'] <= cleaned_data['lo_p']:
-#                raise forms.ValidationError('Highest period must be larger than lowest')
-#
-#        if cleaned_data['hi_redchisq'] is not None and cleaned_data['lo_redchisq'] is not None:
-#            if cleaned_data['hi_redchisq'] <= cleaned_data['lo_redchisq']:
-#                raise forms.ValidationError('Highest reduced chi-squared  must be larger than lowest')
-#
-##        if cleaned_data['hi_dm'] is not None and cleaned_data['lo_dm'] is not None:
-##            if cleaned_data['hi_dm'] <= cleaned_data['lo_dm']:
-##                raise forms.ValidationError('Highest DM must be larger than lowest')
 
-        return cleaned_data
+class CandidateTagForm(forms.ModelForm):
+    class Meta:
+        model = Bestprof
+        fields = ('tags',)

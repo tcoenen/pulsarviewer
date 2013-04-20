@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form method="POST" action="." class="form-inline">
+	{% csrf_token %}
+	{{form.tags}}
+	<button type="submit" class="btn btn-primary"/>Change tags</button>
+</form>
+<img src="{{img.file.url}}" />
+
+{% endblock %}
