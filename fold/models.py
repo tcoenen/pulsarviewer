@@ -4,6 +4,8 @@ from django.db import models
 from django.core.files import File
 from django.contrib.auth.models import User
 
+from taggit.managers import TaggableManager
+
 import bestprof
 
 
@@ -147,6 +149,7 @@ class Bestprof(models.Model):
     p_dot_dot_bary = models.FloatField()
 
     objects = BestprofManager()
+    tags = TaggableManager()
 
     def __unicode__(self):
         return 'DM = %.3f P = %.4f (ms)' % (self.best_dm, self.p_bary)
@@ -173,9 +176,3 @@ class FoldedImage(models.Model):
     bestprof = models.ForeignKey(Bestprof)
 
     objects = FoldedImageManager()
-
-
-class Vote(models.Model):
-    who = models.ForeignKey(User)
-    which = models.ForeignKey(Bestprof)
-    tag = models.CharField(max_length=255)
