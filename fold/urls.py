@@ -1,4 +1,6 @@
 from django.conf.urls import patterns, url
+from django.views.generic import TemplateView
+
 from views import BestprofListView, CandidatePHistogramView, ConstraintsView
 from views import BestprofDetailView, CandidatePDMView, CandidatePChiView
 
@@ -10,5 +12,8 @@ urlpatterns = patterns('',
         name='candidate_p_histogram'),
     url(r'constraints/', ConstraintsView.as_view(),
         name='candidate_constraints'),
-    url(r'', BestprofListView.as_view(), name='bestprof_list'),
+    url(r'list', BestprofListView.as_view(), name='bestprof_list'),
+    # 'Front page'
+    url(r'', TemplateView.as_view(template_name='home.html'), name='home'),
+
 )

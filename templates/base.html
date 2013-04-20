@@ -1,55 +1,37 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
+{% load staticfiles %}
+
+{% comment %}<html xmlns="http://www.w3.org/1999/xhtml">{% endcomment %}
+<!DOCTYPE html>
+<html>
 <head><title>{% block title %}Pulsar viewer{% endblock %}</title>
+<link href="{% static 'bootstrap.css' %}" rel="stylesheet" media="screen">
 <style>
-/*<![CDATA[*/
-body {
-    font-family: sans-serif;
-    background-color: black;
-    color: white;
-    margin: 0em;
-    padding: 0em;
-}
-#breadcrumbs {
-    background-color: #333333;
-    color: #cccccc;
-    padding: 0em 1em 0em 1em;
-}
-#breadcrumbs > a {
-    color: #cccccc;
-}
-#content {
-    padding: 0em 1em 0em 1em;
-    color:white;
-}
-#content > a{
-    color : white;
-}
-
-#header {
-    padding: 0em 1em 0em 1em;
-    color: gray;
-    background-color: black;
-}
-#header > a {
-    color: gray;
-}
-#pagetitle {
-    color: #336699;
-    font-size: 200%;
-}
-#pagetitle > a {
-    color: #336699;
-    text-decoration: none;
-}
-
-/*]]>*/
+body {margin-top: 50px}
 </style>
 </head>
 <body>
-<div id="header"><span id="pagetitle">{% block pagetitle %}Pulsar Viewer{% endblock %} </span> 
-{% if user.is_authenticated %}Logged in as {{user}} (<a href="{% url logout %}">log out</a>).{% endif %}</div>
-<div id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</div>
+<div class="navbar navbar-fixed-top navbar-inverse">
+<div class="navbar-inner">
+	<a class="brand" href="/folds/">Pulsar Viewer</a>
+	<ul class="nav">
+		<li><a href="{% url 'candidate_constraints' %}{{selection}}">Select</a></li>
+		<li><a href="{% url 'bestprof_list' %}{{selection}}">Classify</a></li>
+		<li><a href="{% url 'candidate_pdm_graph' %}{{selection}}">P-DM</a></li>
+		<li><a href="{% url 'candidate_pchi_graph' %}{{selection}}">P-RedChiSq</a></li>
+		<li><a href="{% url 'candidate_p_histogram' %}{{selection}}">P-histogram</a></li>
+	</ul>
+	<div style="display: inline-block" class="pull-right">
+		<ul class="nav">
+			{% if user.is_authenticated %}
+			<li><a href="{% url 'logout' %}">Log {{user.username}} out</a></li>
+			{% else %}
+			<li><a href="{% url 'login' %}">Log in</a></li>
+			{% endif %}
+		</ul>
+	</div>
+</div>
+</div>
+
 <div id="content">{% block content %}{% endblock %}</div>
-<div id="footer"></div>
 </body>
 </html>

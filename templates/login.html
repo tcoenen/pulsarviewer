@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block greeting %}{% if user.is_authenticated %}Logged in as {{user}} (<a href="{% url 'logout' %}">log out</a>).{% endif %}{% endblock %}
+
+{% block content %}
+<form method="POST">
+<table>
+{{form.as_table}}
+</table>
+{% csrf_token %}
+<input type="submit" value="Log in" />
+</form>
+{% endblock %}

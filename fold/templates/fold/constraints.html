@@ -2,19 +2,34 @@
 
 
 {% block content %}
-<h1>Constraints</h1>
-<form method="POST" action=".">
+<form method="POST" action="." class="form-horizontal">
+<p class="text-error">{{form.non_field_errors}}</p>
 {% csrf_token %}
-<table>
-{{form.as_table}}
-</table>
-<input type="submit" value="Change constraints !" />
+{% for field in form.invisible_fields %}
+{{field}}
+{% endfor %}
+{% for field in form.visible_fields %}
+<div class="control-group{% if field.errors %} error{% endif %}">
+	<label class="control-label" for="{{field.auto_id}}">{{field.label_tag}}</label>
+	<div class="controls">
+		{{field}}
+		{% if field.errors %}
+		<span class="help-inline">
+		{% for error in field.errors %}
+		{{error|escape}}
+		{% endfor %}
+		{% endif %}
+		</span>
+	</div>
+</div>
+{% endfor %}
+<div class="control=troup">
+	<div class="controls">
+	<input type="submit" value="Apply constraints!" class="btn btn-primary">
+	</div>
+</div>
+
+
 </form>
 <br />
-<ul>
-	<li><a href="{% url 'bestprof_list' %}{{selection}}">Candidate listing</a></li>
-	<li><a href="{% url 'candidate_pdm_graph' %}{{selection}}">Period versus Dispersion Measure</a></li>
-	<li><a href="{% url 'candidate_pchi_graph' %}{{selection}}">Period versus reduced chi-squared</a></li>
-	<li><a href="{% url 'candidate_p_histogram' %}{{selection}}">Period histogram</a></li>
-</ul>
 {% endblock %}

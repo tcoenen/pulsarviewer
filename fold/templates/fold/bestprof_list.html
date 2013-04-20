@@ -1,20 +1,35 @@
 {% extends "base.html" %}
 
-{% block breadcrumbs %}Candidates list
-{% if is_paginated %} : Page {{page_obj.number}} of {{paginator.num_pages}}
-({% if page_obj.has_previous %}<a href="{% if selection %}?{{selection}}&{% else %}?{% endif %}page={{page_obj.previous_page_number}}">previous</a>
-{% else %}previous{% endif %},
-{% if page_obj.has_next %}<a href="{% if selection %}?{{selection}}&{% else %}?{% endif %}page={{page_obj.next_page_number}}">next</a>{% else %}next{% endif %})
-{% endif %}
 
-{% endblock %}
 
 {% block content %}
-<ul>
-{% for fold in object_list %}
-<li><a href="{% url 'bestprof_detail' fold.pk %}{% if selection %}?{{selection}}{% endif %}">P0 = {{fold.p_bary}}, DM {{fold.best_dm}}</a></li>
-{% empty %}
-<span style='color:red'>No Candidates Found</span>
+<table class="table table-condensed">
+	<thead>
+	<tr><td>pulsar</td></tr>
+	</thead>
+	<tbody>
+		{% for fold in object_list %}<tr><td><a href="{% url 'bestprof_detail' fold.pk %}{% if selection %}?{{selection}}{% endif %}">P0 = {{fold.p_bary}}, DM {{fold.best_dm}}</a></td></tr>
+		{% empty %}
+<tr><td>No Candidates Found</td></tr>
 {% endfor %}
-</ul>
+</tbody>
+</table>
+
+{% if is_paginated %}
+<div class="pagination">
+	<ul>
+		{% if page_obj.has_previous %}
+		<li><a href="{{selection}}{% if selection %}&{% else %}?{% endif %}page={{page_obj.previous_page_number}}">Previous</a></li>
+		{% else %}
+		<li class="disabled"><a href="">Previous</a></li>
+		{% endif %}
+		<li class="active"><a href="">Page {{page_obj.number}}</a></li>
+		{% if page_obj.has_next %}
+		<li><a href="{{selection}}{% if selection %}&{% else %}?{% endif %}page={{page_obj.next_page_number}}">Next</a></li>
+		{% else %}
+		<li class="disabled"><a href="">Next</a></li>
+		{% endif %}
+	</ul>
+</div>
+{% endif %}
 {% endblock content %}

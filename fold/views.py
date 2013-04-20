@@ -18,7 +18,11 @@ OK_GET_PARAMETERS = set([
     'order',
 ])
 
-#ARGH = reverse('candidate_constraints')
+
+def prepend_questionmark(s):
+    if s:
+        s = '?' + s
+    return s
 
 
 def check_parameters(get_pars):
@@ -38,7 +42,8 @@ class BestprofListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(BestprofListView, self).get_context_data(**kwargs)
-        context['selection'] = check_parameters(self.request.GET).urlencode()
+        context['selection'] = prepend_questionmark(
+            check_parameters(self.request.GET).urlencode())
         return context
 
 
@@ -50,7 +55,8 @@ class BestprofDetailView(DetailView):
 
         img = FoldedImage.objects.get(bestprof=context['object'].pk)
 
-        context['selection'] = check_parameters(self.request.GET).urlencode()
+        context['selection'] = prepend_questionmark(
+            check_parameters(self.request.GET).urlencode())
         context['img'] = img
         context['dm'] = '%.2f' % context['object'].best_dm
         context['p0'] = '%.2f' % context['object'].p_bary
@@ -80,10 +86,8 @@ class ConstraintsView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(ConstraintsView, self).get_context_data(**kwargs)
-        selection = check_parameters(self.request.GET).urlencode()
-        if selection:
-            selection = '?' + selection
-        context['selection'] = selection
+        context['selection'] = prepend_questionmark(
+            check_parameters(self.request.GET).urlencode())
         return context
 
     def get_initial(self):
