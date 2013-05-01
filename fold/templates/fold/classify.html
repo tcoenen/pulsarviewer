@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script>
+	$(document).ready(function(){
+		var api_uri = "{% url 'bestprof_list' %}";
+		{% comment %} We include the selection constraints into the HTML, no messing with the query parameters from Javascript {% endcomment %}
+		{% if constraints %}var constraints = {{constraints|safe}};{% else %}var constraints = {};{% endif %}
+		constraints['format'] = 'json';
+
+		// Global state
+		ids = undefined;
+		listen = false;
+		index = undefined;
+		posting = false;
+
+		function getlist(){
+			$.ajax({
+				url: api_uri,
+				data: constraints,
+				type: 'GET',
+				dataType: 'json',
+			}).done(function(data, textstatus, jqXHR){
+				console.log(jqXHR.status);
+				ids = data;
+				console.log('Loaded candidate primary keys.');
+				console.log(data);
+				// Load first candidate into browser window.
+				index = 0;
+				grabcandidate(ids[index]);
+			}).fail(function(data, textstatus, jqXHR){
+				console.log(jqXHR.status);
+				console.log('Some problem loading candidate primary keys.');
+				// Add error message to HTML page
+			});
+		};
+
+		function grabcandidate(id){
+			if (api_uri[api_uri.length - 1] === '/'){
+				target = api_uri + id + '/';
+			} else {
+				target = api_uri + '/' + id + '/';
+			}
+
+			$.ajax({
+				url: target,
+				data: {'format': 'json'},
+				type: 'GET',
+				dataType: 'json',
+
+			}).done(function(data, textstatus, jqXHR){
+				target_div = $('#target').empty();
+				img = $('<img />').attr('src', data['img']);
+				target_div.append(img);
+				listen = true;
+			}).fail(function(data, textstatus, jqXHR){
+				console.log('Can\'t load the candidate.');
+			});
+		};
+
+		function postclassification(id, tags){
+			console.log('POSTing classification ' + tags[0] + ' for candidate ' + id);
+			// perform AJAX post to candidate URL
+			data = {'pk': id, 'tags': tags}
+				if (api_uri[api_uri.length - 1] === '/'){
+					target = api_uri + id + '/';
+				} else {
+					target = api_uri + '/' + id + '/';
+				}
+			$.ajax({
+				url: target,
+				data: data,
+				type: 'POST',
+				dataType: 'json',
+			}).done(function(data, textstatus, jqXHR){
+				console.log('Did work somehow.');
+			}).fail(function(data, textstatus, jqXHR){
+				console.log('Failed the post request, no big mystery why.');
+			});
+			// once we receive a success status
+			// 	move to next candidate	
+			// on failure
+			//	do nothing
+			// listen to keyboard again
+		
+		};
+
+		function handlekeypress(event){
+//			event.preventDefault();
+			if (listen){
+				listen = false;
+				if (index < ids.length){
+					c = String.fromCharCode(event.which).toLowerCase();
+
+					// Determine the tag to put on current candidate or whether it needs to be skipped.
+					skip = false;
+					switch (c){
+						case 'p':
+							tag = 'pulsar';
+							break;
+						case 'r':
+							tag = 'rfi';
+							break;
+						case 'i':
+							tag = 'interesting';
+							break;
+						case 'u':
+							tag = 'unknown';
+							break;
+						case ' ':
+							skip = true;
+							break;
+						default:
+							tag = undefined;
+					}	
+					if (skip){
+						console.log('Skipping candidate ' + ids[index]);
+						index += 1;
+						grabcandidate(ids[index]);
+					} else {
+						if (tag){
+							// TODO : send classification be stored
+							tags = [tag];
+							postclassification(ids[index], tags);
+							index += 1;
+							grabcandidate(ids[index]);
+						} else {
+							// Pressed key not skip or classification, resume listening;
+							listen = true
+						}
+					}
+
+				} else {
+					index = undefined;
+					ids = undefined;
+					getlist();
+				};
+			};
+		};
+			
+		getlist();
+		$('body').keypress(handlekeypress);
+	});
+</script>
+<div class="container">
+	<div class="row">
+		<div class="span12" id="target">
+		</div>
+	</div>
+</div>
+{% endblock %}

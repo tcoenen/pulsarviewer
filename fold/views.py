@@ -1,9 +1,11 @@
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.edit import FormView
 from django.core.urlresolvers import reverse
+from django.utils import simplejson
 
-from django.http import HttpResponseRedirect, QueryDict, Http404
+from django.http import HttpResponseRedirect, QueryDict, HttpResponse
 
 from models import Bestprof, FoldedImage
 from forms import ConstraintsForm, CandidateTagForm
@@ -40,6 +42,14 @@ def check_parameters(get_pars):
 class BestprofListView(ListView):
     model = Bestprof
     paginate_by = 50
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.GET.get('format', 'html') == 'json':
+            # Shortcut, we just want the primary keys as json
+            tmp = list(self.get_queryset().values_list('pk', flat=True))
+            return HttpResponse(simplejson.dumps(tmp, 'application/json'))
+        else:
+            return super(BestprofListView, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         return Bestprof.objects.with_constraints(self.request.GET)
@@ -103,15 +113,43 @@ class BestprofDetailView(UpdateView):
     form_class = CandidateTagForm
     model = Bestprof
 
+    # TODO: hack into dispatch to also handle xhr requests (both GET and POST)
+    # using json.
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.GET.get('format', 'html') == 'json':
+            # Shortcut, we just want the primary keys as json
+            obj = self.get_object()
+            img = FoldedImage.objects.get(bestprof=obj.pk).file.url
+            tmp = {
+                'pk': obj.pk,
+                'tags': [t.name for t in obj.tags.all()],
+                'img': img,
+            }
+            return HttpResponse(simplejson.dumps(tmp, 'application/json'))
+        else:
+            return super(BestprofDetailView, self).dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(BestprofDetailView, self).get_context_data(**kwargs)
         context['selection'] = prepend_questionmark(
             check_parameters(self.request.GET).urlencode())
         img = FoldedImage.objects.get(bestprof=context['object'].pk)
         context['img'] = img
-        print context
         return context
 
     def get_success_url(self):
         return reverse('bestprof_detail', args=(self.object.pk,)) + '?' + \
             self.request.GET.urlencode()
+
+
+class ClassifyView(TemplateView):
+    template_name = 'fold/classify.html'
+
+    def get_context_data(self, **kwargs):
+        # include the constraints into the template (to be accessed through
+        # java script in the page easily (without messing with the GET
+        # parameters from Javascript).
+        qd = self.request.GET.copy()
+        tmp = simplejson.dumps(qd)
+        return {'constraints': tmp}
