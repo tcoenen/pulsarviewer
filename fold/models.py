@@ -46,7 +46,6 @@ class BestprofManager(models.Manager):
         return new
 
     def with_constraints(self, get_pars):
-        print get_pars
         qs = super(BestprofManager, self).get_query_set()
         if 'lo_dm' in get_pars:
             try:
