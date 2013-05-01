@@ -2,6 +2,7 @@
 
 
 {% block content %}
+<div class="container">
 <form method="POST" action="." class="form-horizontal">
 <p class="text-error">{{form.non_field_errors}}</p>
 {% csrf_token %}
@@ -31,5 +32,6 @@
 
 
 </form>
+</div>
 <br />
 {% endblock %}
