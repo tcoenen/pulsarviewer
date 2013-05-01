@@ -1,19 +1,15 @@
 {% extends "base.html" %}
-
 {% load candidate_graph %}
 
-{% block breadcrumbs %}Candidates list
-{% if is_paginated %} : Page {{page_obj.number}} of {{paginator.num_pages}}
-({% if page_obj.has_previous %}<a href="{% if selection %}?{{selection}}&{% else %}?{% endif %}page={{page_obj.previous_page_number}}">previous</a>
-{% else %}previous{% endif %},
-{% if page_obj.has_next %}<a href="{% if selection %}?{{selection}}&{% else %}?{% endif %}page={{page_obj.next_page_number}}">next</a>{% else %}next{% endif %})
-{% endif %}
-
-{% endblock %}
-
 {% block content %}
-{% candidate_graph object_list %}
-{% if is_paginated %}
+<div class="container">
+	<div class="row">
+		<div class="span12">
+			{% candidate_graph object_list %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="span12">
 <div class="pagination">
 	<ul>
 		{% if page_obj.has_previous %}
@@ -21,7 +17,7 @@
 		{% else %}
 		<li class="disabled"><a href="">Previous</a></li>
 		{% endif %}
-		<li class="active"><a href="">Page {{page_obj.number}}</a></li>
+		<li class="active"><a href="">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a></li>
 		{% if page_obj.has_next %}
 		<li><a href="{{selection}}{% if selection %}&{% else %}?{% endif %}page={{page_obj.next_page_number}}">Next</a></li>
 		{% else %}
@@ -29,5 +25,7 @@
 		{% endif %}
 	</ul>
 </div>
-{% endif %}
+		</div>
+	</div>
+</div>
 {% endblock content %}

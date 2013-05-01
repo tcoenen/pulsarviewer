@@ -1,37 +1,38 @@
 {% load staticfiles %}
-
-{% comment %}<html xmlns="http://www.w3.org/1999/xhtml">{% endcomment %}
 <!DOCTYPE html>
 <html>
-<head><title>{% block title %}Pulsar viewer{% endblock %}</title>
-<link href="{% static 'bootstrap.css' %}" rel="stylesheet" media="screen">
-<style>
-body {margin-top: 50px}
-</style>
-</head>
-<body>
-<div class="navbar navbar-fixed-top navbar-inverse">
-<div class="navbar-inner">
-    <a class="brand" href="{% url 'home' %}">Pulsar Viewer</a>
-	<ul class="nav">
-		<li><a href="{% url 'candidate_constraints' %}{{selection}}">Select</a></li>
-		<li><a href="{% url 'bestprof_list' %}{{selection}}">Classify</a></li>
-		<li><a href="{% url 'candidate_pdm_graph' %}{{selection}}">P-DM</a></li>
-		<li><a href="{% url 'candidate_pchi_graph' %}{{selection}}">P-RedChiSq</a></li>
-		<li><a href="{% url 'candidate_p_histogram' %}{{selection}}">P-histogram</a></li>
-	</ul>
-	<div style="display: inline-block" class="pull-right">
-		<ul class="nav">
-			{% if user.is_authenticated %}
-			<li><a href="{% url 'logout' %}">Log {{user.username}} out</a></li>
-			{% else %}
-			<li><a href="{% url 'login' %}">Log in</a></li>
-			{% endif %}
-		</ul>
-	</div>
-</div>
-</div>
+	<head>
+		<title>{% block title %}Pulsar viewer{% endblock %}</title>
+		<link href="{% static 'bootstrap.css' %}" rel="stylesheet" media="screen" />
+		<script src="{% static 'jquery-1.9.1.js' %}"></script>
+		<style>
+			body {margin-top: 50px}
+		</style>
+	</head>
+	<body>
+		<div class="navbar navbar-fixed-top navbar-inverse">
+			<div class="navbar-inner">
+				<a class="brand" href="{% url 'home' %}">Pulsar Viewer</a>
+				<ul class="nav">
+					<li><a href="{% url 'candidate_constraints' %}{{selection}}">Select</a></li>
+					<li><a href="{% url 'bestprof_list' %}{{selection}}">List</a></li>
+					<li><a href="{% url 'candidate_classify' %}{{selection}}">Classify</a></li>
+					<li><a href="{% url 'candidate_pdm_graph' %}{{selection}}">P-DM</a></li>
+					<li><a href="{% url 'candidate_pchi_graph' %}{{selection}}">P-RedChiSq</a></li>
+					<li><a href="{% url 'candidate_p_histogram' %}{{selection}}">P-histogram</a></li>
+				</ul>
+				<div style="display: inline-block" class="pull-right">
+					<ul class="nav">
+						{% if user.is_authenticated %}
+						<li><a href="{% url 'logout' %}">Log {{user.username}} out</a></li>
+						{% else %}
+						<li><a href="{% url 'login' %}">Log in</a></li>
+						{% endif %}
+					</ul>
+				</div>
+			</div>
+		</div>
 
-<div id="content">{% block content %}{% endblock %}</div>
-</body>
+		<div id="content">{% block content %}PLACEHOLDER{% endblock %}</div>
+	</body>
 </html>
