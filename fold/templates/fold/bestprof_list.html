@@ -3,19 +3,27 @@
 
 
 {% block content %}
+<div class="container">
+<div class="row">
+	<div class="span12">
 <table class="table table-condensed">
 	<thead>
 	<tr><td>pulsar</td></tr>
 	</thead>
 	<tbody>
-        {% for fold in object_list %}<tr><td><a href="{% url 'bestprof_detail' fold.pk %}{{selection}}">P0 = {{fold.p_bary}}, DM {{fold.best_dm}}</a></td></tr>
-		{% empty %}
+{% for fold in object_list %}<tr><td><a href="{% url 'bestprof_detail' fold.pk %}{{selection}}">P0 = {{fold.p_bary}}, DM {{fold.best_dm}}</a></td></tr>
+{% empty %}
 <tr><td>No Candidates Found</td></tr>
 {% endfor %}
 </tbody>
 </table>
+</div>
+</div>
+
 
 {% if is_paginated %}
+<div class="row">
+<div class="span12">
 <div class="pagination">
 	<ul>
 		{% if page_obj.has_previous %}
@@ -23,7 +31,7 @@
 		{% else %}
 		<li class="disabled"><a href="">Previous</a></li>
 		{% endif %}
-		<li class="active"><a href="">Page {{page_obj.number}}</a></li>
+		<li class="active"><a href="">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</a></li>
 		{% if page_obj.has_next %}
 		<li><a href="{{selection}}{% if selection %}&{% else %}?{% endif %}page={{page_obj.next_page_number}}">Next</a></li>
 		{% else %}
@@ -31,5 +39,9 @@
 		{% endif %}
 	</ul>
 </div>
+</div>
+</div>
 {% endif %}
+</div>
+
 {% endblock content %}
