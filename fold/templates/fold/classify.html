@@ -75,6 +75,7 @@
 			}).done(function(data, textstatus, jqXHR){
 				console.log('Did work somehow.');
 			}).fail(function(data, textstatus, jqXHR){
+				console.log(data);
 				console.log('Failed the post request, no big mystery why.');
 			});
 			// once we receive a success status

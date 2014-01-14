@@ -6,6 +6,8 @@ from django.core.urlresolvers import reverse
 from django.utils import simplejson
 
 from django.http import HttpResponseRedirect, QueryDict, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 from models import Bestprof, FoldedImage
 from forms import ConstraintsForm, CandidateTagForm
@@ -116,7 +118,9 @@ class BestprofDetailView(UpdateView):
     # TODO: hack into dispatch to also handle xhr requests (both GET and POST)
     # using json.
 
+    @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
+        print self.request.POST
         if self.request.GET.get('format', 'html') == 'json':
             # Shortcut, we just want the primary keys as json
             obj = self.get_object()
