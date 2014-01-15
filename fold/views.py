@@ -6,8 +6,6 @@ from django.core.urlresolvers import reverse
 from django.utils import simplejson
 
 from django.http import HttpResponseRedirect, QueryDict, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 
 from models import Bestprof, FoldedImage
 from forms import ConstraintsForm, CandidateTagForm
@@ -21,10 +19,12 @@ OK_GET_PARAMETERS = set([
     'hi_redchisq',
     'beam',
     'order',
+    'tag',
 ])
 
 CONSTRAINTS_KEYS = [
-    'lo_p', 'hi_p', 'lo_redchisq', 'hi_redchisq', 'lo_dm', 'hi_dm']
+    'lo_p', 'hi_p', 'lo_redchisq', 'hi_redchisq', 'lo_dm', 'hi_dm', 'tag'
+]
 
 
 def prepend_questionmark(s):
@@ -46,8 +46,8 @@ class BestprofListView(ListView):
     paginate_by = 50
 
     def dispatch(self, request, *args, **kwargs):
-        if self.request.GET.get('format', 'html') == 'json':
-            # Shortcut, we just want the primary keys as json
+        if request.is_ajax():
+            # Shortcut, we just want the primary keys as json.
             tmp = list(self.get_queryset().values_list('pk', flat=True))
             return HttpResponse(simplejson.dumps(tmp, 'application/json'))
         else:
@@ -82,7 +82,7 @@ class ConstraintsView(FormView):
     template_name = 'fold/constraints.html'
     form_class = ConstraintsForm
     CONSTRAINTS_KEYS = ['lo_p', 'hi_p', 'lo_redchisq', 'hi_redchisq', 'lo_dm',
-                        'hi_dm']
+                        'hi_dm', 'tag']
 
     def get_context_data(self, **kwargs):
         context = super(ConstraintsView, self).get_context_data(**kwargs)
@@ -115,14 +115,8 @@ class BestprofDetailView(UpdateView):
     form_class = CandidateTagForm
     model = Bestprof
 
-    # TODO: hack into dispatch to also handle xhr requests (both GET and POST)
-    # using json.
-
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        print self.request.POST
-        if self.request.GET.get('format', 'html') == 'json':
-            # Shortcut, we just want the primary keys as json
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
             obj = self.get_object()
             img = FoldedImage.objects.get(bestprof=obj.pk).file.url
             tmp = {
@@ -132,7 +126,27 @@ class BestprofDetailView(UpdateView):
             }
             return HttpResponse(simplejson.dumps(tmp, 'application/json'))
         else:
-            return super(BestprofDetailView, self).dispatch(request, *args, **kwargs)
+            return super(BestprofDetailView, self).post(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        # TODO: handle failures in the AJAX path better!
+        # TODO: clean up!
+        if request.is_ajax():
+            target_pk = int(request.POST[u'pk'])
+            tag = request.POST[u'tags[]']
+            try:
+                fi = FoldedImage.objects.get(bestprof=target_pk)
+            except Exception, e:  # TODO: Clean this up!
+                print 'Failure getting the FoldedImage instance from DB'
+                print e
+            else:
+                if tag not in fi.bestprof.tags.all():
+                    fi.bestprof.tags.add(tag)
+                    fi.save()
+            tmp = {}  # consider setting some success/failure message
+            return HttpResponse(simplejson.dumps(tmp, 'application/json'))
+        else:
+            return super(BestprofDetailView, self).post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(BestprofDetailView, self).get_context_data(**kwargs)
@@ -151,9 +165,14 @@ class ClassifyView(TemplateView):
     template_name = 'fold/classify.html'
 
     def get_context_data(self, **kwargs):
-        # include the constraints into the template (to be accessed through
+        # Include the constraints into the template (to be accessed through
         # java script in the page easily (without messing with the GET
         # parameters from Javascript).
         qd = self.request.GET.copy()
         tmp = simplejson.dumps(qd)
-        return {'constraints': tmp}
+        context = {
+            'constraints': tmp,
+            'selection': prepend_questionmark(check_parameters(self.request.GET).urlencode())
+        }
+
+        return context

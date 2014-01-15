@@ -21,7 +21,7 @@ class CandidateGraphNode(template.Node):
         qs = context[self.var_name]
         tmp = StringIO.StringIO()
 
-        cv = SVGCanvas(940, 550, background_color='white')
+        cv = SVGCanvas(940, 550, background_color='gray')
 
         P = [c.p_bary for c in qs.all() if c.best_dm > 0]
         DM = [c.best_dm for c in qs.all() if c.best_dm > 0]
@@ -99,7 +99,7 @@ class ChiSquareCandidateGraphNode(template.Node):
         RA = [c.ra_deg for c in qs.all() if c.best_dm > 0]
         DEC = [c.dec_deg for c in qs.all() if c.best_dm > 0]
 
-        cv = SVGCanvas(940, 550, background_color='white')
+        cv = SVGCanvas(940, 550, background_color='gray')
         if P:
             lo_dm = min(DM)
             max_dm = max(DM)
@@ -166,7 +166,7 @@ class CandidatePHistogramNode(template.Node):
 
         P = [c.p_bary for c in qs.all() if c.p_bary > 0]
 
-        cv = SVGCanvas(940, 550, background_color='white')
+        cv = SVGCanvas(940, 550, background_color='gray')
         if P:
             binned = bin_data_log(P, 200)
             pc = PlotContainer(0, -20, 950, 550, color='black', x_log=True)

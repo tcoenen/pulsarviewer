@@ -26,6 +26,7 @@ class ConstraintsForm(forms.Form):
                                    label='Highest reduced chi-squared')
     lo_dm = forms.FloatField(required=False, min_value=0, label='Lowest DM')
     hi_dm = forms.FloatField(required=False, label='Highest DM')
+    tag = forms.CharField(required=False, label='Tag')
 
     def clean_lo_p(self):
         return check_period(self.cleaned_data['lo_p'])

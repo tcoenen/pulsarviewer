@@ -6,7 +6,6 @@
 		var api_uri = "{% url 'bestprof_list' %}";
 		{% comment %} We include the selection constraints into the HTML, no messing with the query parameters from Javascript {% endcomment %}
 		{% if constraints %}var constraints = {{constraints|safe}};{% else %}var constraints = {};{% endif %}
-		constraints['format'] = 'json';
 
 		// Global state
 		ids = undefined;
@@ -14,6 +13,7 @@
 		index = undefined;
 		posting = false;
 
+		// Grab the list of relevant primary 
 		function getlist(){
 			$.ajax({
 				url: api_uri,
@@ -59,35 +59,34 @@
 		};
 
 		function postclassification(id, tags){
-			console.log('POSTing classification ' + tags[0] + ' for candidate ' + id);
 			// perform AJAX post to candidate URL
+			console.log('All tags: ', tags);
 			data = {'pk': id, 'tags': tags}
 				if (api_uri[api_uri.length - 1] === '/'){
 					target = api_uri + id + '/';
 				} else {
 					target = api_uri + '/' + id + '/';
 				}
+			console.log('Posting to: '+ target);
+			console.log('POSTing classification ' + tags[0] + ' for candidate ' + id);
 			$.ajax({
 				url: target,
+				beforeSend: function(request)
+				{
+					request.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+				},
 				data: data,
 				type: 'POST',
 				dataType: 'json',
 			}).done(function(data, textstatus, jqXHR){
-				console.log('Did work somehow.');
+				console.log('Added tag: ' + data['tags']);
 			}).fail(function(data, textstatus, jqXHR){
+				console.log('Failed to save tag');
 				console.log(data);
-				console.log('Failed the post request, no big mystery why.');
 			});
-			// once we receive a success status
-			// 	move to next candidate	
-			// on failure
-			//	do nothing
-			// listen to keyboard again
-		
 		};
 
 		function handlekeypress(event){
-//			event.preventDefault();
 			if (listen){
 				listen = false;
 				if (index < ids.length){

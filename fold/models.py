@@ -95,6 +95,11 @@ class BestprofManager(models.Manager):
             else:
                 qs = qs.filter(reduced_chi_sq__lte=hi_redchisq)
 
+        if 'tag' in get_pars:
+            tag = get_pars['tag']
+            print 'tag', tag
+            qs.filter(tags__name__in=[tag])
+
         try:
             beam = get_pars['beam']
         except KeyError:
