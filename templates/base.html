@@ -18,8 +18,8 @@
 					<li><a href="{% url 'candidate_constraints' %}{{selection}}">Select</a></li>
 					<li><a href="{% url 'bestprof_list' %}{{selection}}">List</a></li>
 					<li><a href="{% url 'candidate_classify' %}{{selection}}">Classify</a></li>
-					<li><a href="{% url 'candidate_pdm_graph' %}{{selection}}">P-DM</a></li>
-					<li><a href="{% url 'candidate_pchi_graph' %}{{selection}}">P-RedChiSq</a></li>
+					<li><a href="{% url 'candidate_pdm_graph' %}{{selection}}{% if extra_page %}&{{extra_page}}{% endif %}">P-DM</a></li>
+					<li><a href="{% url 'candidate_pchi_graph' %}{{selection}}{% if extra_page %}&{{extra_page}}{% endif %}">P-RedChiSq</a></li>
 					<li><a href="{% url 'candidate_p_histogram' %}{{selection}}">P-histogram</a></li>
 				</ul>
 				<div style="display: inline-block" class="pull-right">

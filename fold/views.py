@@ -67,10 +67,36 @@ class CandidatePDMView(BestprofListView):
     template_name = 'fold/pdm_graph.html'
     paginate_by = 2000
 
+    def get_context_data(self, **kwargs):
+        context = super(CandidatePDMView, self).get_context_data(**kwargs)
+
+        # Add the current plot page to the context (so that the position in
+        # the overall list of candidates is retained when switching from 
+        # P-DM to P-CHI plot).
+        page_no = self.request.GET.get(u'page', u'')
+        if page_no:
+            tmp = QueryDict('').copy()
+            tmp.update({u'page': page_no})
+            context['extra_page'] = tmp.urlencode()
+        return context
+
 
 class CandidatePChiView(BestprofListView):
     template_name = 'fold/pchi_graph.html'
     paginate_by = 2000
+
+    def get_context_data(self, **kwargs):
+        context = super(CandidatePChiView, self).get_context_data(**kwargs)
+
+        # Add the current plot page to the context (so that the position in
+        # the overall list of candidates is retained when switching from 
+        # P-CHI to P-DM plot).
+        page_no = self.request.GET.get(u'page', u'')
+        if page_no:
+            tmp = QueryDict('').copy()
+            tmp.update({u'page': page_no})
+            context['extra_page'] = tmp.urlencode()
+        return context
 
 
 class CandidatePHistogramView(BestprofListView):
@@ -103,7 +129,7 @@ class ConstraintsView(FormView):
         # needed.
         tmp = {}
         for k, v in form.cleaned_data.iteritems():
-            if k in CONSTRAINTS_KEYS and v is not None:
+            if k in CONSTRAINTS_KEYS and v:
                 tmp[k] = v
         qd.update(tmp)
         path = reverse('candidate_constraints') + '?' + qd.urlencode()
