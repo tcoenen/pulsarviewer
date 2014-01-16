@@ -7,11 +7,15 @@
 <div class="row">
 	<div class="span12">
 <table class="table table-condensed">
-	<thead>
-	<tr><td>pulsar</td></tr>
-	</thead>
-	<tbody>
-{% for fold in object_list %}<tr><td><a href="{% url 'bestprof_detail' fold.pk %}{{selection}}">P0 = {{fold.p_bary}}, DM {{fold.best_dm}}</a></td></tr>
+<thead>
+	<tr><th>RA</th><th>DEC</th><th class="text-right">P</th><th class="text-right">DM</th><th class="text-right">tags</th><th></th></tr>
+</thead>
+<tbody>
+{% for fold in object_list %}
+<tr><td>{{fold.ra}}</td><td>{{fold.dec}}</td><td class="text-right">{{fold.p_bary|floatformat:3}}</td><td class="text-right">{{fold.best_dm|floatformat:3}}</td>
+<td class="text-right">{% for tag in fold.tags.all %}{{tag}} {% endfor %}</td>
+<td class="text-right"><a href="{% url 'bestprof_detail' fold.pk %}{{selection}}">more</a></td>
+</tr>
 {% empty %}
 <tr><td>No Candidates Found</td></tr>
 {% endfor %}
