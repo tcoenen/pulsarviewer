@@ -9,96 +9,80 @@ from fold.models import Bestprof, FoldedImage
 from fold import coords
 
 
-def match_files(png_files, bestprof_files):
-    tmp = {}
-
-    for f in png_files:
-        d, fn = os.path.split(f)
-        k = fn[:-4]
-        tmp[k] = [f]
-
-    for f in bestprof_files:
-        d, fn = os.path.split(f)
-        k = fn[:-len('.pfd.bestprof')]
-        if k in tmp:
-            tmp[k].append(f)
-
-    incomplete = []
-    for key, value in tmp.iteritems():
-        if len(value) != 2:
-            incomplete.append(key)
-
-    for k in incomplete:
-        del tmp[k]
-    return list(tmp.values())
-
-
 class Command(BaseCommand):
-    args = '<pulpsearch style output search output directory> <beam name>'
+    args = '<pulpsearch style output search output directory> <beam name> <ra> <dec>'
     help = 'Load all pulsar folds from search'
 
     def handle(self, *args, **kwargs):
         if not args or len(args) != 4:
-            print len(args)
             msg = 'Specify search output dir, beam (no spaces), RA and DEC.'
             raise CommandError(msg)
+
+        beam_name = args[1]
 
         ra = coords.RightAscension.from_sexagesimal(args[2])
         dec = coords.Declination.from_sexagesimal(args[3])
         ra_deg = 180 * ra.to_radians() / math.pi
         dec_deg = 180 * dec.to_radians() / math.pi
-
-        print '(RA, DEC) = (%.2f, %.2f)' % (ra_deg, dec_deg)
+        self.stdout.write('(RA, DEC) = (%.2f, %.2f)' % (ra_deg, dec_deg))
 
         # find relevant files
-        folds_root = os.path.join(args[0], 'QUICKLOOK')
-        bestprof_files = []
-        png_files = []
-        try:
-            for root, dirs, files in os.walk(folds_root):
-                for f in files:
-                    if f.endswith('.pfd.bestprof'):
-                        bestprof_files.append(os.path.join(root, f))
-                    elif f.endswith('.png'):
-                        png_files.append(os.path.join(root, f))
-        except IOError, e:
-            if e.errno == errno.ENOENT:
-                raise CommandError('No FOLDS directory: %s' % folds_root)
-        except:
-            raise
+        in_dir = os.path.realpath(args[0])
+        bestprof_files = set()
+        png_files = set()
 
-        if not bestprof_files:
-            raise CommandError('No .bestprof files in %s' % folds_root)
+        files = os.listdir(in_dir)
+        for f in files:
+            if f.endswith('.pfd.bestprof'):
+                bestprof_files.add(f[:-13])
+            elif f.endswith('.png'):
+                png_files.add(f[:-4])
 
-        matched_files = match_files(png_files, bestprof_files)
+        basenames = bestprof_files.intersection(png_files)
+
+        if not basenames:
+            raise CommandError('No folds found in: %s' % in_dir)
 
         failures = []
-        for f1, f2 in matched_files:
+        for bn in basenames:
+            bestprof_file = os.path.join(in_dir, bn + '.pfd.bestprof')
+            png_file = os.path.join(in_dir, bn + '.png')
+
+            assert os.path.exists(bestprof_file)
+            assert os.path.exists(png_file)
+
             try:
-                new = Bestprof.objects.create_bestprof(f2, args[1], ra_deg, dec_deg)
+                new = Bestprof.objects.create_bestprof(
+                    bestprof_file, beam_name, ra_deg, dec_deg
+                )
             except IOError, e:
                 if e.errno == errno.ENOENT:
-                    msg = 'File does not exist: %s' % f
+                    msg = 'File does not exist: %s' % bestprof_file
                     failures.append(msg)
             except:
                 raise
             else:
                 try:
                     new.save()
-                except IntegrityError, e:
-                    failures.append('File probably already uploaded: %s' % f2)
+                except IntegrityError:
+                    msg = 'File probably already uploaded: %s' % bestprof_file
+                    failures.append(msg)
                 except:
-                    print 'WHATEVER IS WRONG'
+                    msg = 'Unknown exception, skipping: %s' % bestprof_file
+                    failures.append(msg)
                 else:
                     try:
-                        new_image = FoldedImage.objects.create_image(f1,
-                                                                     args[1],
-                                                                     new)
+                        new_image = FoldedImage.objects.create_image(
+                            png_file, beam_name, new
+                        )
                     except IOError, e:
                         if e.errno == errno.ENOENT:
-                            msg = 'File does not exist: %s' % f1
+                            msg = 'File does not exist: %s' % png_file
                             failures.append(msg)
                     except:
+                        # Database in messy state, should read up on database
+                        # transactions and/or provide a clean-up command.
+                        # (Because .bestprof was loaded but not the .png)
                         raise
                     else:
                         new_image.save()
