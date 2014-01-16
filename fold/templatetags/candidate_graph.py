@@ -21,7 +21,7 @@ class CandidateGraphNode(template.Node):
         qs = context[self.var_name]
         tmp = StringIO.StringIO()
 
-        cv = SVGCanvas(940, 550, background_color='gray')
+        cv = SVGCanvas(940, 550, background_color='white')
 
         P = [c.p_bary for c in qs.all() if c.best_dm > 0]
         DM = [c.best_dm for c in qs.all() if c.best_dm > 0]
@@ -36,7 +36,7 @@ class CandidateGraphNode(template.Node):
             min_redchisq = min(REDCHISQ)
             # Main panel showing candidate period-DM scatter plot:
             pc = PlotContainer(0, -20, 880, 550, color='black', x_log=True,
-                               y_log=True)
+                               y_log=True, data_background_color='gray')
             pc.bottom.set_label('Period (ms)')
             pc.top.hide_label()
             pc.left.set_label('Dispersion Measure (cm^-3 pc)')
@@ -99,12 +99,12 @@ class ChiSquareCandidateGraphNode(template.Node):
         RA = [c.ra_deg for c in qs.all() if c.best_dm > 0]
         DEC = [c.dec_deg for c in qs.all() if c.best_dm > 0]
 
-        cv = SVGCanvas(940, 550, background_color='gray')
+        cv = SVGCanvas(940, 550, background_color='white')
         if P:
             lo_dm = min(DM)
             max_dm = max(DM)
             pc = PlotContainer(0, -20, 880, 550, color='black', x_log=True,
-                               y_log=True)
+                               y_log=True, data_background_color='gray')
             gr = RGBGradient((lo_dm, max_dm), (0, 0, 1), (1, 0, 0))
             scp = ScatterPlotter(P, REDCHISQ, RA, DEC, DM, gradient=gr,
                                  gradient_i=4, links=LINKS,
@@ -166,7 +166,7 @@ class CandidatePHistogramNode(template.Node):
 
         P = [c.p_bary for c in qs.all() if c.p_bary > 0]
 
-        cv = SVGCanvas(940, 550, background_color='gray')
+        cv = SVGCanvas(940, 550, background_color='white')
         if P:
             binned = bin_data_log(P, 200)
             pc = PlotContainer(0, -20, 950, 550, color='black', x_log=True)
