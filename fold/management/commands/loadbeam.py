@@ -53,7 +53,7 @@ class Command(BaseCommand):
 
             try:
                 new = Bestprof.objects.create_bestprof(
-                    bestprof_file, beam_name, ra_deg, dec_deg
+                    bestprof_file, beam_name, ra_deg, dec_deg, ra, dec
                 )
             except IOError, e:
                 if e.errno == errno.ENOENT:
@@ -67,7 +67,8 @@ class Command(BaseCommand):
                 except IntegrityError:
                     msg = 'File probably already uploaded: %s' % bestprof_file
                     failures.append(msg)
-                except:
+                except Exception, e:
+                    print e
                     msg = 'Unknown exception, skipping: %s' % bestprof_file
                     failures.append(msg)
                 else:

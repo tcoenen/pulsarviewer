@@ -11,7 +11,7 @@ import bestprof
 
 
 class BestprofManager(models.Manager):
-    def create_bestprof(self, filename, beamname, ra_deg, dec_deg):
+    def create_bestprof(self, filename, beamname, ra_deg, dec_deg, ra, dec):
         bpf = bestprof.BestprofFile(filename)
         with open(filename) as f:
             file_hash = hash(f.read())
@@ -20,6 +20,8 @@ class BestprofManager(models.Manager):
             file_hash=file_hash,
             beam=beamname,
             file=File(open(filename)),
+            ra=ra,
+            dec=dec,
             ra_deg=ra_deg,
             dec_deg=dec_deg,
             input_file=bpf.header.input_file,
@@ -129,6 +131,9 @@ class Bestprof(models.Model):
     beam = models.CharField(max_length=255)
     file = models.FileField(upload_to=generate_bestprof_filename,
                             editable=False)
+    ra = models.CharField(max_length=25)
+    dec = models.CharField(max_length=25)
+
     ra_deg = models.FloatField()
     dec_deg = models.FloatField()
 
